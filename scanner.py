@@ -126,18 +126,32 @@ class Scanner:
 			self.add_token(TokenType.STAR)
 		elif c == "!":
 			self.add_token(TokenType.NOT_EQUAL if self.match("=") else TokenType.NOT)
+			self.advance()
 		elif c == "<":
 			self.add_token(TokenType.LESS_EQUAL if self.match("=") else TokenType.LESS)
+			self.advance()
 		elif c == ">":
 			self.add_token(TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER)
+			self.advance()
 		elif c == "=":
 			self.add_token(TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL)
+			self.advance()
 		elif c == "/":
-			if self.match("/"):
-				while self.peek() != '\n' and not self.is_at_end():
+			if self.match("*"):
+				self.advance()
+				while self.peek() != '*' and self.peek_next() != '/' and not self.is_at_end():
+					if self.peek() == '\n':
+						self.line += 1
 					self.advance()
-			elif self.match('*'):
-				while self.peek() != '*' and self.peek_next() != '/':
+
+				if self.is_at_end():
+					print(f'[line {self.line}]: Error: Unterminated multiline comment')
+
+				self.advance() # for *
+				self.advance() # for /
+			elif self.match("/"):
+				self.advance()
+				while self.peek() != '\n' and not self.is_at_end():
 					self.advance()
 			else:
 				self.add_token(TokenType.SLASH)
@@ -179,20 +193,18 @@ class Scanner:
 
 
 	def advance(self):
-		result = self.source[self.current]
+		result = self.source[self.current] if self.current < len(self.source) else '\0'
 		self.current += 1
 		return result
 
 	def match(self, ch):
-		result = not self.is_at_end() and ch == self.source[self.current]
-		self.current += 1
-		return result
+		return not self.is_at_end() and ch == self.source[self.current]
 
 	def peek(self):
 		return '\0' if self.is_at_end() else self.source[self.current]
 
 	def peek_next(self):
-		return '\0' if (self.current + 1) > len(self.source) else self.source[self.current + 1]
+		return self.source[self.current + 1] if (self.current + 1) < len(self.source) else '\0'
 
 	def add_token(self, token_type, literal=None):
 		lexeme = self.source[self.start:self.current]
