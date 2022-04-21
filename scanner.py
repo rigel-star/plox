@@ -53,6 +53,26 @@ class TokenType(Enum):
 	EOF = 38
 
 
+KEYWORDS = {
+	'and': TokenType.AND, 
+	'or': TokenType.OR, 
+	'class': TokenType.CLASS, 
+	'if': TokenType.IF,
+	'else': TokenType.ELSE,
+	'true': TokenType.TRUE,
+	'false': TokenType.FALSE,
+	'var': TokenType.VAR,
+	'fun': TokenType.FUN,
+	'for': TokenType.FOR,
+	'nul': TokenType.NUL,
+	'print': TokenType.PRINT,
+	'return': TokenType.RETURN,
+	'super': TokenType.SUPER,
+	'this': TokenType.THIS,
+	'while': TokenType.WHILE
+}
+
+
 class Token:
 	def __init__(self, tok_type: TokenType, lexeme: str, literal: object, line: int):
 		self.token_type = tok_type
@@ -116,25 +136,47 @@ class Scanner:
 			if self.match("/"):
 				while self.peek() != '\n' and not self.is_at_end():
 					self.advance()
+			elif self.match('*'):
+				while self.peek() != '*' and self.peek_next() != '/':
+					self.advance()
 			else:
 				self.add_token(TokenType.SLASH)
-		elif c == ' ' or '\r' or '\t':
-			return
 		elif c == '\n':
 			self.line += 1
 		elif c == '"':
-			while self.peek() != '"' and not is_at_end():
+			while self.peek() != '"' and not self.is_at_end():
 				if self.peek() == '\n':
 					self.line += 1
 				self.advance()
 
-			if is_at_end():
-				print(f"[line: {self.line}: Error: Unterminated string")
+			if self.is_at_end():
+				print(f"[line {self.line}]: Error: Unterminated string")
+				return
 
 			self.advance() # advancing the closing "
 			self.add_token(TokenType.STRING, self.source[self.start + 1: self.current - 1])
+		elif c.isdigit():
+				while self.peek().isdigit():
+					self.advance()
+				if self.peek() == '.' and self.peek_next().isdigit():
+					self.advance()
+					while self.peek().isdigit():
+						self.advance()
+				self.add_token(TokenType.NUMBER, self.source[self.start:self.current])
+		elif c.isalpha() or c == "_":
+			while self.peek().isalnum():
+				self.advance()
+			text = self.source[self.start:self.current]
+			typ = KEYWORDS.get(text)
+			if typ is None:
+				typ = TokenType.IDENTIFIER
+			self.add_token(typ)
 		else:
-			print(f"[line: {self.line}]: Error: Unexpected character")
+			if c == ' ' or '\r' or '\t':
+				return
+			else:
+				print(f"[line: {self.line}]: Error: Unexpected character")
+
 
 	def advance(self):
 		result = self.source[self.current]
@@ -148,6 +190,9 @@ class Scanner:
 
 	def peek(self):
 		return '\0' if self.is_at_end() else self.source[self.current]
+
+	def peek_next(self):
+		return '\0' if (self.current + 1) > len(self.source) else self.source[self.current + 1]
 
 	def add_token(self, token_type, literal=None):
 		lexeme = self.source[self.start:self.current]
