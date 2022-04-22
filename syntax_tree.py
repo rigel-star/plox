@@ -46,11 +46,14 @@ class BinaryExpr(Expr):
 	def accept(self, visitor):
 		return visitor.visit_binary_expr(self)
 
+	def __str__(self):
+		return f'{self.right_expr} {self.operator} {self.left_expr}'
+
 
 class UnaryExpr(Expr):
 	def __init__(self, operator: Token, right: Expr):
 		self.operator = operator
-		self.right = expr
+		self.right = right
 
 	def accept(self, visitor: ExprVisitor):
 		return  visitor.visit_unary_expr(self)
@@ -89,6 +92,9 @@ class ASTPrinter(ExprVisitor):
 
 	def visit_binary_expr(self, binary):
 		return self.parenthesize(binary.operator.lexeme, binary.left_expr, binary.right_expr)
+
+	def visit_unary_expr(self, unary):
+		return self.parenthesize(unary.operator.lexeme, unary.right)
 
 	def visit_literal_expr(self, literal):
 		return str(literal.value)

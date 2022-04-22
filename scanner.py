@@ -41,7 +41,7 @@ class TokenType(Enum):
 	FUN = 26
 	FOR = 27
 	IF = 28
-	NUL = 29
+	NIL = 29
 	OR = 30
 	PRINT = 31
 	RETURN = 32
@@ -64,7 +64,7 @@ KEYWORDS = {
 	'var': TokenType.VAR,
 	'fun': TokenType.FUN,
 	'for': TokenType.FOR,
-	'nul': TokenType.NUL,
+	'nil': TokenType.NIL,
 	'print': TokenType.PRINT,
 	'return': TokenType.RETURN,
 	'super': TokenType.SUPER,
