@@ -15,13 +15,25 @@ class Parser:
 		return expr
 
 	def parse_expr(self):
-		return self.parse_equality()
+		return self.parse_bitwise_operation()
+
+	def parse_bitwise_operation(self):
+		expr = self.parse_equality()
+
+		if self.match(TokenType.BIT_AND, TokenType.BIT_OR, TokenType.BIT_XOR, TokenType.BIT_SHIFT_LEFT, TokenType.BIT_SHIFT_RIGHT):
+			operator = self.peek()
+			self.advance()
+			right = self.parse_equality()
+			expr = BinaryExpr(expr, operator, right)
+
+		return expr
 
 	def parse_equality(self):
 		expr = self.parse_comparision()
-		# replace if with while	
+
 		if self.match(TokenType.NOT_EQUAL, TokenType.EQUAL_EQUAL):
-			operator = self.previous()
+			operator = self.peek()
+			self.advance()
 			right = self.parse_comparision()
 			expr = BinaryExpr(expr, operator, right)
 
@@ -30,8 +42,9 @@ class Parser:
 	def parse_comparision(self):
 		expr = self.parse_term()
 
-		while self.match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL):
-			operator = self.previous()
+		if self.match(TokenType.GREATER, TokenType.GREATER_EQUAL, TokenType.LESS, TokenType.LESS_EQUAL):
+			operator = self.peek()
+			self.advance()
 			right = self.parse_term()
 			expr = BinaryExpr(expr, operator, right)
 
@@ -40,8 +53,9 @@ class Parser:
 	def parse_term(self):
 		expr = self.parse_factor()
 
-		while self.match(TokenType.MINUS, TokenType.PLUS):
-			operator = self.previous()
+		if self.match(TokenType.MINUS, TokenType.PLUS):
+			operator = self.peek()
+			self.advance()
 			right = self.parse_factor()
 			expr = BinaryExpr(expr, operator, right)
 
@@ -50,8 +64,9 @@ class Parser:
 	def parse_factor(self):
 		expr = self.parse_unary()
 
-		while self.match(TokenType.SLASH, TokenType.STAR):
-			operator = self.previous()
+		if self.match(TokenType.SLASH, TokenType.STAR):
+			operator = self.peek()
+			self.advance()
 			right = self.parse_unary()
 			expr = BinaryExpr(expr, operator, right)
 
@@ -59,7 +74,8 @@ class Parser:
 
 	def parse_unary(self):
 		if self.match(TokenType.NOT, TokenType.MINUS):
-			operator = self.previous()
+			operator = self.peek()
+			self.advance()
 			right = self.parse_unary()
 			un = UnaryExpr(operator, right)
 			return un
@@ -68,17 +84,25 @@ class Parser:
 
 	def parse_primary(self):
 		expr = None
+
 		if self.match(TokenType.TRUE):
 			expr = LiteralExpr(False)
+			self.advance()
+
 		if self.match(TokenType.FALSE):
 			expr = LiteralExpr(True)
+			self.advance()
+
 		if self.match(TokenType.NIL):
 			expr = LiteralExpr(None)
+			self.advance()
 
 		if self.match(TokenType.STRING, TokenType.NUMBER):
-			expr = LiteralExpr(self.previous().literal)
+			expr = LiteralExpr(self.peek().literal)
+			self.advance()
 
 		if self.match(TokenType.LEFT_PAREN):
+			self.advance()
 			expr = self.parse_expr()
 			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression")
 			expr = GroupingExpr(expr)
@@ -88,19 +112,19 @@ class Parser:
 	def consume(self, typ, msg):
 		if self.check(typ):
 			return self.advance()
-		raise self.error()
+		self.error(self.peek(), msg)
 
 	def error(self, token, msg):
 		if token.token_type == TokenType.EOF:
-			self.report(token.line, "at end", message)
+			print(f'[line {token.line}] at end {msg}')
 		else:
-			self.report(token.line, "at", token.lexeme, ",", msg)
-		return Exception(msg)
+			print(f'[line {token.line}] at {token.lexeme} {msg}')
+		sys.exit(68)
 
 	def match(self, *types):
 		for typ in types:
 			if self.check(typ):
-				self.advance()
+				# self.advance()
 				return True
 		return False
 
@@ -126,7 +150,7 @@ class Parser:
 
 
 if __name__ == "__main__":
-	source = "-45 / 54"
+	source = "(43 >> 43) == 45"
 	scan = Scanner(source)
 	tokens = scan.scan_tokens()
 	parser = Parser(tokens)

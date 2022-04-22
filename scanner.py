@@ -17,40 +17,47 @@ class TokenType(Enum):
 	SEMICOLON = 8
 	SLASH = 9
 	STAR = 10
+	NEGATE = 11
+	BIT_AND = 12
+	BIT_OR = 13
+	BIT_NEGATE = 14
+	BIT_XOR = 15
 
 	# one or two character tokens
-	NOT = 11
-	NOT_EQUAL = 12
-	EQUAL = 13
-	EQUAL_EQUAL = 14
-	GREATER = 15
-	GREATER_EQUAL = 16
-	LESS = 17
-	LESS_EQUAL = 18
+	NOT = 16
+	NOT_EQUAL = 17
+	EQUAL = 18
+	EQUAL_EQUAL = 19
+	GREATER = 20
+	GREATER_EQUAL = 21
+	BIT_SHIFT_RIGHT = 24
+	LESS = 22
+	LESS_EQUAL = 23
+	BIT_SHIFT_LEFT = 25
 
 	# literals
-	IDENTIFIER = 19
-	STRING = 20
-	NUMBER = 21
+	IDENTIFIER = 26
+	STRING = 27
+	NUMBER = 28
 
 	# keywords 
-	AND = 22
-	CLASS = 23
-	ELSE = 24
-	FALSE = 25
-	FUN = 26
-	FOR = 27
-	IF = 28
-	NIL = 29
-	OR = 30
-	PRINT = 31
-	RETURN = 32
-	SUPER = 33
-	THIS = 34
-	TRUE = 35
-	VAR = 36
-	WHILE = 37
-	EOF = 38
+	AND = 29
+	CLASS = 30
+	ELSE = 31
+	FALSE = 32
+	FUN = 33
+	FOR = 34
+	IF = 35
+	NIL = 36
+	OR = 37
+	PRINT = 38
+	RETURN = 39
+	SUPER = 40
+	THIS = 41
+	TRUE = 42
+	VAR = 43
+	WHILE = 44
+	EOF = 45
 
 
 KEYWORDS = {
@@ -106,36 +113,72 @@ class Scanner:
 
 		if c == "(":
 			self.add_token(TokenType.LEFT_PAREN)
+
 		elif c == ")":
 			self.add_token(TokenType.RIGHT_PAREN)
+
 		elif c == "{":
 			self.add_token(TokenType.LEFT_BRACE)
+
 		elif c == "}":
 			self.add_token(TokenType.RIGHT_BRACE)
+
 		elif c == ",":
 			self.add_token(TokenType.COMMA)
+
 		elif c == ".":
 			self.add_token(TokenType.DOT)
+
 		elif c == "-":
 			self.add_token(TokenType.MINUS)
+
 		elif c == "+":
 			self.add_token(TokenType.PLUS)
+
 		elif c == ";":
 			self.add_token(TokenType.SEMICOLON)
+
 		elif c == "*":
 			self.add_token(TokenType.STAR)
+
+		elif c == "&":
+			self.add_token(TokenType.BIT_AND)
+
+		elif c == "|":
+			self.add_token(TokenType.BIT_OR)
+
+		elif c == "^":
+			self.add_token(TokenType.BIT_XOR)
+
+		elif c == "~":
+			self.add_token(TokenType.BIT_NEGATE)
+
 		elif c == "!":
 			self.add_token(TokenType.NOT_EQUAL if self.match("=") else TokenType.NOT)
 			self.advance()
+
 		elif c == "<":
-			self.add_token(TokenType.LESS_EQUAL if self.match("=") else TokenType.LESS)
+			if self.match("="):
+				self.add_token(TokenType.LESS_EQUAL)
+			elif self.match("<"):
+				self.add_token(TokenType.BIT_SHIFT_LEFT)
+			else:
+				self.add_token(TokenType.LESS)
 			self.advance()
+
 		elif c == ">":
-			self.add_token(TokenType.GREATER_EQUAL if self.match("=") else TokenType.GREATER)
+			if self.match("="):
+				self.add_token(TokenType.GREATER_EQUAL)
+			elif self.match(">"):
+				self.add_token(TokenType.BIT_SHIFT_RIGHT)
+			else:
+				self.add_token(TokenType.GREATER)
 			self.advance()
+
 		elif c == "=":
 			self.add_token(TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL)
 			self.advance()
+
 		elif c == "/":
 			if self.match("*"):
 				self.advance()
@@ -155,8 +198,10 @@ class Scanner:
 					self.advance()
 			else:
 				self.add_token(TokenType.SLASH)
+
 		elif c == '\n':
 			self.line += 1
+
 		elif c == '"':
 			while self.peek() != '"' and not self.is_at_end():
 				if self.peek() == '\n':
@@ -169,6 +214,7 @@ class Scanner:
 
 			self.advance() # advancing the closing "
 			self.add_token(TokenType.STRING, self.source[self.start + 1: self.current - 1])
+
 		elif c.isdigit():
 				while self.peek().isdigit():
 					self.advance()
@@ -177,6 +223,7 @@ class Scanner:
 					while self.peek().isdigit():
 						self.advance()
 				self.add_token(TokenType.NUMBER, self.source[self.start:self.current])
+
 		elif c.isalpha() or c == "_":
 			while self.peek().isalnum():
 				self.advance()
@@ -185,6 +232,7 @@ class Scanner:
 			if typ is None:
 				typ = TokenType.IDENTIFIER
 			self.add_token(typ)
+
 		else:
 			if c == ' ' or '\r' or '\t':
 				return

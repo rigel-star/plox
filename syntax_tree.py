@@ -22,6 +22,9 @@ class ExprVisitor():
 	def visit_logical_expr(self, logical):
 		pass
 
+	def visit_bitwise_expr(self, bitwise):
+		pass
+
 
 class Expr:
 	def accept(self, visitor):
@@ -35,6 +38,11 @@ class AssignExpr(Expr):
 		
 	def accept(self, visitor: ExprVisitor):
 		return visitor.visit_assign_expr(self)
+
+'''
+class BitwiseExpr(Expr):
+	def __init__(self, expr_right: Expr, operator: Token, expr_left: Expr)
+'''
 
 
 class BinaryExpr(Expr):
@@ -90,11 +98,11 @@ class ASTPrinter(ExprVisitor):
 	def printer(self, expr: Expr):
 		return expr.accept(self)
 
-	def visit_binary_expr(self, binary):
-		return self.parenthesize(binary.operator.lexeme, binary.left_expr, binary.right_expr)
-
 	def visit_unary_expr(self, unary):
 		return self.parenthesize(unary.operator.lexeme, unary.right)
+
+	def visit_binary_expr(self, binary):
+		return self.parenthesize(binary.operator.lexeme, binary.left_expr, binary.right_expr)
 
 	def visit_literal_expr(self, literal):
 		return str(literal.value)
