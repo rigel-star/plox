@@ -73,7 +73,7 @@ class Parser:
 		return expr
 
 	def parse_unary(self):
-		if self.match(TokenType.NOT, TokenType.MINUS):
+		if self.match(TokenType.NOT, TokenType.MINUS, TokenType.BIT_NEGATE):
 			operator = self.peek()
 			self.advance()
 			right = self.parse_unary()
@@ -150,7 +150,7 @@ class Parser:
 
 
 if __name__ == "__main__":
-	source = "(43 >> 43) == 45"
+	source = "45 != 43"
 	scan = Scanner(source)
 	tokens = scan.scan_tokens()
 	parser = Parser(tokens)

@@ -39,11 +39,6 @@ class AssignExpr(Expr):
 	def accept(self, visitor: ExprVisitor):
 		return visitor.visit_assign_expr(self)
 
-'''
-class BitwiseExpr(Expr):
-	def __init__(self, expr_right: Expr, operator: Token, expr_left: Expr)
-'''
-
 
 class BinaryExpr(Expr):
 	def __init__(self, expr_right: Expr, operator: Token, expr_left: Expr):

@@ -7,6 +7,8 @@ from typing import List, Dict, Tuple
 
 # custom
 from scanner import Token, Scanner
+from parser import Parser
+from interpreter import Interpreter
 
 
 def error(line, message):
@@ -16,9 +18,10 @@ def error(line, message):
 def run(program):
 	scan = Scanner(program)
 	tokens = scan.scan_tokens()
-
-	for token in tokens:
-		print(token)
+	parser = Parser(tokens)
+	expr = parser.parse()
+	interp = Interpreter()
+	interp.interpret(expr)
 
 
 def run_program(file_name):
