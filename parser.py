@@ -63,10 +63,11 @@ class Parser:
 			if_true = self.parse_decl_stmt()
 			if_false = None
 			if self.match(TokenType.ELSE):
+				self.advance()
 				if_false = self.parse_decl_stmt()
 
 			if_stmt = IfStmt(condition, if_true, if_false)
-			print(if_stmt)
+			return if_stmt
 
 		return self.parse_expr_stmt()
 
@@ -99,7 +100,7 @@ class Parser:
 
 
 	def parse_assign_expr(self):
-		expr = self.parse_bitwise()
+		expr = self.parse_or_expr()
 
 		if self.match(TokenType.EQUAL):
 			equals = self.peek()
@@ -112,6 +113,30 @@ class Parser:
 				return assign
 
 			self.error(equals, "Invalid lvalue")
+
+		return expr
+
+
+	def parse_or_expr(self):
+		expr = self.parse_and_expr()
+
+		if self.match(TokenType.OR):
+			operator = self.peek()
+			self.advance()
+			right = self.parse_and_expr()
+			expr = LogicalExpr(expr, operator, right)
+
+		return expr
+
+
+	def parse_and_expr(self):
+		expr = self.parse_bitwise()
+
+		if self.match(TokenType.AND):
+			operator = self.peek()
+			self.advance()
+			right = self.parse_bitwise()
+			expr = LogicalExpr(expr, operator, right)
 
 		return expr
 

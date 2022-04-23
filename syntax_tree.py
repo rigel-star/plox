@@ -23,6 +23,9 @@ class ExprVisitor:
 	def visit_variable_expr(self, variable):
 		pass
 
+	def visit_logical_expr(self, logical):
+		pass
+
 
 # Expressions in program
 class Expr:
@@ -80,6 +83,16 @@ class VariableExpr(Expr):
 
 	def accept(self, visitor):
 		return visitor.visit_variable_expr(self)
+
+
+class LogicalExpr(Expr):
+	def __init__(self, left_expr: Expr, operator: Token, right_expr: Expr):
+		self.right_expr = right_expr
+		self.operator = operator
+		self.left_expr = left_expr
+
+	def accept(self, visitor):
+		return visitor.visit_logical_expr(self)
 	
 
 # Statements in program 

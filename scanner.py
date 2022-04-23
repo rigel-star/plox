@@ -237,7 +237,7 @@ class Scanner:
 					self.add_token(TokenType.NUMBER, int(self.source[self.start:self.current]))
 
 		elif c.isalpha() or c == "_":
-			while self.peek().isalnum():
+			while self.peek().isalnum() or self.peek() == "_":
 				self.advance()
 			text = self.source[self.start:self.current]
 			typ = KEYWORDS.get(text)

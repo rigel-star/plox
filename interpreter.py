@@ -15,10 +15,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
 	def interpret(self, stmts: List[Stmt]):
 		for stmt in stmts:
-			# print(stmt)
+			#print(stmt)
 			self.execute(stmt)
 
-		# self.var_env.dump()
+		self.var_env.dump()
 
 
 	def execute(self, stmt):
@@ -180,6 +180,19 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		return value
 
 
+	def visit_logical_expr(self, logical):
+		left_expr = self.evaluate(logical.left_expr)
+		operator = logical.operator
+		right_expr = self.evaluate(logical.right_expr)
+
+		if operator.token_type == TokenType.OR:
+			return left_expr or right_expr
+		elif operator.token_type == TokenType.AND:
+			return left_expr and right_expr
+
+		return None
+
+
 	# statements part
 	def visit_print_stmt(self, printt):
 		expr_result = self.evaluate(printt.expr)
@@ -198,7 +211,8 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		if condition:
 			self.execute(if_stmt.if_true)
 		else:
-			self.execute(if_stmt.if_false)
+			if if_stmt.if_false:
+				self.execute(if_stmt.if_false)
 
 		return None
 
@@ -218,7 +232,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
 
 	def execute_block(self, stmts):
-		new_env = Environment()
+		new_env = Environment(enclosing=self.var_env)
 		prev_env = self.var_env
 		self.var_env = new_env
 
