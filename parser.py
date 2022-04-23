@@ -15,25 +15,27 @@ class Parser:
 		statements: List[Stmt] = list()
 
 		while not self.is_at_end():
-			statements.append(self.parse_decl_stmt())
+			stmt = self.parse_decl_stmt()
+			print(stmt)
+			# statements.append(stmt)
 
+		sys.exit(1)
 		return statements
 
 
 	def parse_decl_stmt(self):
 		if self.match(TokenType.VAR):
 			self.advance() # advance to identifier name
-			name = self.consume(TokenType.IDENTIFIER, "Parse error: Expected variable name")
-			self.advance() # advance to check if expression is given i.e value with = sign else check for semicolon
+			identifier_token = self.consume(TokenType.IDENTIFIER, f"{self.parse_decl_stmt.__name__} Parse error: Expected variable name")
 
-			init = None
+			initialization = None
 			if self.match(TokenType.EQUAL):
 				self.advance()
-				init = self.parse_expr()
+				initialization = self.parse_expr()
 
-			self.consume(TokenType.SEMICOLON, "Parse error: expected ; after expression")
+			self.consume(TokenType.SEMICOLON, f"{self.parse_decl_stmt.__name__} Parse error: expected ; after expression")
 
-			var_stmt = VarDeclareStmt(name, init)
+			var_stmt = VarDeclareStmt(identifier_token.lexeme, initialization)
 			return var_stmt
 
 		return self.parse_stmt()
@@ -41,9 +43,10 @@ class Parser:
 
 	def parse_stmt(self):
 		if self.match(TokenType.PRINT):
+			self.advance()
 			return self.parse_print_stmt()
 
-		return parse_expr_stmt()
+		return self.parse_expr_stmt()
 
 
 	def parse_expr_stmt(self):
@@ -55,8 +58,8 @@ class Parser:
 
 	def parse_print_stmt(self):
 		expr: Expr = self.parse_expr()
-		# self.advance()
-		self.consume(TokenType.SEMICOLON, "Parse error: expected ; after expression")
+		self.advance()
+		self.consume(TokenType.SEMICOLON, f"***{self.parse_print_stmt.__name__}*** Parse error: expected ; after expression")
 		print_stmt = PrintStmt(expr)
 		return print_stmt
 

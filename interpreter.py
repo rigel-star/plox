@@ -1,4 +1,5 @@
 from syntax_tree import *
+from environment import Environment
 from typing import List
 from enum import Enum
 
@@ -8,9 +9,16 @@ class ErrorType(Enum):
 
 
 class Interpreter(ExprVisitor, StmtVisitor):
+	def __init__(self):
+		self.var_env = Environment()
+
+
 	def interpret(self, stmts: List[Stmt]):
 		for stmt in stmts:
+			# print(stmt)
 			self.execute(stmt)
+
+		# self.var_env.dump()
 
 
 	def execute(self, stmt):
@@ -161,6 +169,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		return None
 
 
+	def visit_variable_expr(self, var):
+		return self.var_env.get_var_value(var.name.lexeme)
+
+
 	# statements part
 	def visit_print_stmt(self, printt):
 		expr_result = self.evaluate(printt.expr)
@@ -171,6 +183,16 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
 	def visit_expr_stmt(self, expr_stmt):
 		self.evaluate(expr_stmt.expr)
+		return None
+
+
+	def visit_var_declare_stmt(self, var_decl):
+		value = "undefined"
+		if var_decl.init is not None:
+			value = self.evaluate(var_decl.init)
+
+		self.var_env.variable_values[var_decl.name] = value
+
 		return None
 
 

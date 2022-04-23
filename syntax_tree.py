@@ -118,7 +118,7 @@ class ExprStmt(Stmt):
 
 
 class VarDeclareStmt(Stmt):
-	def __init__(self, name: Token, init: Expr):
+	def __init__(self, name: str, init: Expr):
 		self.name = name
 		self.init = init
 
