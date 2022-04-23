@@ -1,5 +1,5 @@
 from syntax_tree import *
-
+from typing import List
 from enum import Enum
 
 class ErrorType(Enum):
@@ -7,12 +7,17 @@ class ErrorType(Enum):
 	PloxDivisonByZeroError = 2
 
 
-class Interpreter(ExprVisitor):
-	def interpret(self, expr):
-		output = self.evaluate(expr)
-		print(output)
+class Interpreter(ExprVisitor, StmtVisitor):
+	def interpret(self, stmts: List[Stmt]):
+		for stmt in stmts:
+			self.execute(stmt)
 
 
+	def execute(self, stmt):
+		stmt.accept(self)
+
+
+	#expressions part
 	def visit_literal_expr(self, literal):
 		return literal.value
 
@@ -154,6 +159,25 @@ class Interpreter(ExprVisitor):
 			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for ==: {left_type_name} and {right_type_name}")
 
 		return None
+
+
+	# statements part
+	def visit_print_stmt(self, printt):
+		expr_result = self.evaluate(printt.expr)
+		# sys.stdout.write(self.stringify(expr_result))
+		print(self.stringify(expr_result))
+		return None
+
+
+	def visit_expr_stmt(self, expr_stmt):
+		self.evaluate(expr_stmt.expr)
+		return None
+
+
+	def stringify(self, obj):
+		if obj is None:
+			return "nil"
+		return str(obj)
 
 
 	def runtime_error(self, typ, msg=None):

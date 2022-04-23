@@ -3,7 +3,7 @@ import os
 
 from scanner import Token, TokenType
 
-class ExprVisitor():
+class ExprVisitor:
 	def visit_assign_expr(self, assign):
 		pass
 	
@@ -19,9 +19,13 @@ class ExprVisitor():
 	def visit_unary_expr(self, unary):
 		pass
 
+	def visit_variable_expr(self, variable):
+		pass
 
+
+# Expressions in program
 class Expr:
-	def accept(self, visitor):
+	def accept(self, visitor: ExprVisitor):
 		pass
 
 
@@ -70,7 +74,58 @@ class GroupingExpr(Expr):
 
 	def accept(self, visitor: ExprVisitor):
 		return visitor.visit_grouping_expr(self)
+
+
+class VariableExpr(Expr):
+	def __init__(self, name: Token):
+		self.name = name
+
+	def accept(self, visitor):
+		return visitor.visit_variable_expr(self)
 	
+
+# Statements in program 
+class StmtVisitor:
+	def visit_print_stmt(printt):
+		pass
+
+	def visit_expr_stmt(expr_stmt):
+		pass
+
+	def visit_var_declare_stmt(var_decl):
+		pass
+
+
+class Stmt:
+	def accept(self, visitor: StmtVisitor):
+		pass
+
+
+class PrintStmt(Stmt):
+	def __init__(self, expr: Expr):
+		self.expr = expr
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_print_stmt(self)
+
+
+class ExprStmt(Stmt):
+	def __init__(self, expr: Expr):
+		self.expr = expr
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_expr_stmt(self)
+
+
+class VarDeclareStmt(Stmt):
+	def __init__(self, name: Token, init: Expr):
+		self.name = name
+		self.init = init
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_var_declare_stmt(self)
+
+
 
 # For debugging purpose only
 class ASTPrinter(ExprVisitor):

@@ -12,8 +12,53 @@ class Parser:
 
 
 	def parse(self):
+		statements: List[Stmt] = list()
+
+		while not self.is_at_end():
+			statements.append(self.parse_decl_stmt())
+
+		return statements
+
+
+	def parse_decl_stmt(self):
+		if self.match(TokenType.VAR):
+			self.advance() # advance to identifier name
+			name = self.consume(TokenType.IDENTIFIER, "Parse error: Expected variable name")
+			self.advance() # advance to check if expression is given i.e value with = sign else check for semicolon
+
+			init = None
+			if self.match(TokenType.EQUAL):
+				self.advance()
+				init = self.parse_expr()
+
+			self.consume(TokenType.SEMICOLON, "Parse error: expected ; after expression")
+
+			var_stmt = VarDeclareStmt(name, init)
+			return var_stmt
+
+		return self.parse_stmt()
+
+
+	def parse_stmt(self):
+		if self.match(TokenType.PRINT):
+			return self.parse_print_stmt()
+
+		return parse_expr_stmt()
+
+
+	def parse_expr_stmt(self):
 		expr = self.parse_expr()
-		return expr
+		self.consume(TokenType.SEMICOLON, "Parse error: expected ; after expression")
+		expr_stm = ExprStmt(expr)
+		return expr_stm
+
+
+	def parse_print_stmt(self):
+		expr: Expr = self.parse_expr()
+		# self.advance()
+		self.consume(TokenType.SEMICOLON, "Parse error: expected ; after expression")
+		print_stmt = PrintStmt(expr)
+		return print_stmt
 
 
 	def parse_expr(self):
@@ -95,11 +140,11 @@ class Parser:
 		expr = None
 
 		if self.match(TokenType.TRUE):
-			expr = LiteralExpr(False)
+			expr = LiteralExpr(True)
 			self.advance()
 
 		if self.match(TokenType.FALSE):
-			expr = LiteralExpr(True)
+			expr = LiteralExpr(False)
 			self.advance()
 
 		if self.match(TokenType.NIL):
@@ -115,6 +160,9 @@ class Parser:
 			expr = self.parse_expr()
 			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression")
 			expr = GroupingExpr(expr)
+
+		if self.match(TokenType.IDENTIFIER):
+			expr = VariableExpr(self.peek())
 
 		return expr
 

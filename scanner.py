@@ -247,19 +247,24 @@ class Scanner:
 		self.current += 1
 		return result
 
+
 	def match(self, ch):
 		return not self.is_at_end() and ch == self.source[self.current]
+
 
 	def peek(self):
 		return '\0' if self.is_at_end() else self.source[self.current]
 
+
 	def peek_next(self):
 		return self.source[self.current + 1] if (self.current + 1) < len(self.source) else '\0'
+
 
 	def add_token(self, token_type, literal=None):
 		lexeme = self.source[self.start:self.current]
 		token = Token(token_type, lexeme, literal, self.line)
 		self.tokens.append(token)
+
 
 	def is_at_end(self):
 		return self.current >= len(self.source)

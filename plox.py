@@ -19,9 +19,9 @@ def run(program):
 	scan = Scanner(program)
 	tokens = scan.scan_tokens()
 	parser = Parser(tokens)
-	expr = parser.parse()
+	stmts = parser.parse()
 	interp = Interpreter()
-	interp.interpret(expr)
+	interp.interpret(stmts)
 
 
 def run_program(file_name):
