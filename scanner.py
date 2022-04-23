@@ -23,6 +23,8 @@ class TokenType(Enum):
 	BIT_NEGATE = 14
 	BIT_XOR = 15
 
+	# TODO: % operator
+
 	# one or two character tokens
 	NOT = 16
 	NOT_EQUAL = 17
@@ -154,30 +156,38 @@ class Scanner:
 			self.add_token(TokenType.BIT_NEGATE)
 
 		elif c == "!":
-			self.add_token(TokenType.NOT_EQUAL if self.match("=") else TokenType.NOT)
-			self.advance()
+			if self.match("="):
+				self.add_token(TokenType.NOT_EQUAL)
+				self.advance()
+			else:
+				self.add_token(TokenType.NOT)
 
 		elif c == "<":
 			if self.match("="):
 				self.add_token(TokenType.LESS_EQUAL)
+				self.advance()
 			elif self.match("<"):
 				self.add_token(TokenType.BIT_SHIFT_LEFT)
+				self.advance()
 			else:
 				self.add_token(TokenType.LESS)
-			self.advance()
 
 		elif c == ">":
 			if self.match("="):
 				self.add_token(TokenType.GREATER_EQUAL)
+				self.advance()
 			elif self.match(">"):
 				self.add_token(TokenType.BIT_SHIFT_RIGHT)
+				self.advance()
 			else:
 				self.add_token(TokenType.GREATER)
-			self.advance()
 
 		elif c == "=":
-			self.add_token(TokenType.EQUAL_EQUAL if self.match("=") else TokenType.EQUAL)
-			self.advance()
+			if self.match("="):
+				self.add_token(TokenType.EQUAL_EQUAL)
+				self.advance()
+			else:
+				self.add_token(TokenType.EQUAL)
 
 		elif c == "/":
 			if self.match("*"):

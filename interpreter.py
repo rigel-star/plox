@@ -173,6 +173,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		return self.var_env.get_var_value(var.name.lexeme)
 
 
+	def visit_assign_expr(self, assign):
+		var_name = assign.name.lexeme
+		value = self.evaluate(assign.value)
+		self.var_env.assign(var_name, value)
+		return value
+
+
 	# statements part
 	def visit_print_stmt(self, printt):
 		expr_result = self.evaluate(printt.expr)
@@ -186,14 +193,39 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		return None
 
 
+	def visit_if_stmt(self, if_stmt):
+		condition = self.evaluate(if_stmt.condition)
+		if condition:
+			self.execute(if_stmt.if_true)
+		else:
+			self.execute(if_stmt.if_false)
+
+		return None
+
+
 	def visit_var_declare_stmt(self, var_decl):
 		value = "undefined"
 		if var_decl.init is not None:
 			value = self.evaluate(var_decl.init)
 
 		self.var_env.variable_values[var_decl.name] = value
-
 		return None
+
+
+	def visit_block_stmt(self, block):
+		self.execute_block(block.statements)
+		return None
+
+
+	def execute_block(self, stmts):
+		new_env = Environment()
+		prev_env = self.var_env
+		self.var_env = new_env
+
+		for stmt in stmts:
+			self.execute(stmt)
+
+		self.var_env = prev_env
 
 
 	def stringify(self, obj):
@@ -232,12 +264,6 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
 	def check_float_operand(self, value):
 		return isinstance(value, float)
-
-
-	def check_float_operand(self, value):
-		if isinstance(value, float):
-			return True
-		return False
 
 
 	def evaluate(self, expr):

@@ -10,12 +10,19 @@ class Environment:
 		self.variable_values[name] = value
 
 
+	def assign(self, name, value):
+		if name in self.variable_values:
+			self.variable_values[name] = value
+			return
+
+		print(f"Undefined variable '{name}'")
+
+
 	def get_var_value(self, name):
 		if name in self.variable_values:
 			return self.variable_values.get(name)
 		
-		print(f"Undefined variable: {name}")
-		return None
+		return f"Undefined variable '{name}'"
 
 
 	def dump(self):

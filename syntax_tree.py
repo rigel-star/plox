@@ -1,5 +1,6 @@
 import sys
 import os
+from typing import List
 
 from scanner import Token, TokenType
 
@@ -47,9 +48,6 @@ class BinaryExpr(Expr):
 	def accept(self, visitor):
 		return visitor.visit_binary_expr(self)
 
-	def __str__(self):
-		return f'{self.right_expr} {self.operator} {self.left_expr}'
-
 
 class UnaryExpr(Expr):
 	def __init__(self, operator: Token, right: Expr):
@@ -86,13 +84,19 @@ class VariableExpr(Expr):
 
 # Statements in program 
 class StmtVisitor:
-	def visit_print_stmt(printt):
+	def visit_print_stmt(self, printt):
 		pass
 
-	def visit_expr_stmt(expr_stmt):
+	def visit_expr_stmt(self, expr_stmt):
 		pass
 
-	def visit_var_declare_stmt(var_decl):
+	def visit_var_declare_stmt(self, var_decl):
+		pass
+
+	def visit_block_stmt(self, block):
+		pass
+
+	def visit_if_stmt(self, if_stmt):
 		pass
 
 
@@ -125,6 +129,23 @@ class VarDeclareStmt(Stmt):
 	def accept(self, visitor: StmtVisitor):
 		visitor.visit_var_declare_stmt(self)
 
+
+class BlockStmt(Stmt):
+	def __init__(self, stmts: List[Stmt]):
+		self.statements = stmts
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_block_stmt(self)
+
+
+class IfStmt(Stmt):
+	def __init__(self, condition: Expr, if_true: Stmt, if_false: Stmt):
+		self.condition = condition
+		self.if_true = if_true
+		self.if_false = if_false
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_if_stmt(self)
 
 
 # For debugging purpose only

@@ -10,30 +10,34 @@ class Parser:
 		self.tokens = tokens
 		self.current = 0
 
+		#for token in tokens:
+		#	print(token)
+
+		#sys.exit(1)
+
 
 	def parse(self):
 		statements: List[Stmt] = list()
 
 		while not self.is_at_end():
 			stmt = self.parse_decl_stmt()
-			print(stmt)
-			# statements.append(stmt)
+			# print(stmt)
+			statements.append(stmt)
 
-		sys.exit(1)
 		return statements
 
 
 	def parse_decl_stmt(self):
 		if self.match(TokenType.VAR):
 			self.advance() # advance to identifier name
-			identifier_token = self.consume(TokenType.IDENTIFIER, f"{self.parse_decl_stmt.__name__} Parse error: Expected variable name")
+			identifier_token = self.consume(TokenType.IDENTIFIER, "Parse error: Expected variable name")
 
 			initialization = None
 			if self.match(TokenType.EQUAL):
 				self.advance()
 				initialization = self.parse_expr()
 
-			self.consume(TokenType.SEMICOLON, f"{self.parse_decl_stmt.__name__} Parse error: expected ; after expression")
+			self.consume(TokenType.SEMICOLON, "Parse error: expected ';' after expression")
 
 			var_stmt = VarDeclareStmt(identifier_token.lexeme, initialization)
 			return var_stmt
@@ -45,27 +49,71 @@ class Parser:
 		if self.match(TokenType.PRINT):
 			self.advance()
 			return self.parse_print_stmt()
+		elif self.match(TokenType.LEFT_BRACE):
+			self.advance()
+			stmts = self.parse_block_stmt()
+			block = BlockStmt(stmts)
+			return block
+		elif self.match(TokenType.IF):
+			self.advance()
+			self.consume(TokenType.LEFT_PAREN, "Parse error: expected '(' before expression")
+			condition = self.parse_expr()
+			self.consume(TokenType.RIGHT_PAREN, "Parse error: expected ')' after expression")
+
+			if_true = self.parse_decl_stmt()
+			if_false = None
+			if self.match(TokenType.ELSE):
+				if_false = self.parse_decl_stmt()
+
+			if_stmt = IfStmt(condition, if_true, if_false)
+			print(if_stmt)
 
 		return self.parse_expr_stmt()
 
 
+	def parse_block_stmt(self):
+		stmts = list()
+		while not self.is_at_end() and not self.check(TokenType.RIGHT_BRACE):
+			stmts.append(self.parse_decl_stmt())
+
+		self.consume(TokenType.RIGHT_BRACE, "Parse error: expected '}' after block")
+		return stmts
+
+
 	def parse_expr_stmt(self):
 		expr = self.parse_expr()
-		self.consume(TokenType.SEMICOLON, "Parse error: expected ; after expression")
+		self.consume(TokenType.SEMICOLON, "Parse error: expected ';' after expression")
 		expr_stm = ExprStmt(expr)
 		return expr_stm
 
 
 	def parse_print_stmt(self):
 		expr: Expr = self.parse_expr()
-		self.advance()
-		self.consume(TokenType.SEMICOLON, f"***{self.parse_print_stmt.__name__}*** Parse error: expected ; after expression")
+		self.consume(TokenType.SEMICOLON, "Parse error: expected ';' after expression")
 		print_stmt = PrintStmt(expr)
 		return print_stmt
 
 
 	def parse_expr(self):
-		return self.parse_bitwise()
+		return self.parse_assign_expr()
+
+
+	def parse_assign_expr(self):
+		expr = self.parse_bitwise()
+
+		if self.match(TokenType.EQUAL):
+			equals = self.peek()
+			self.advance()
+			value = self.parse_assign_expr()
+
+			if isinstance(expr, VariableExpr):
+				identifier_token = expr.name
+				assign = AssignExpr(identifier_token, value)
+				return assign
+
+			self.error(equals, "Invalid lvalue")
+
+		return expr
 
 
 	def parse_bitwise(self):
@@ -166,6 +214,7 @@ class Parser:
 
 		if self.match(TokenType.IDENTIFIER):
 			expr = VariableExpr(self.peek())
+			self.advance()
 
 		return expr
 

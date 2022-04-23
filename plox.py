@@ -36,11 +36,23 @@ def run_program(file_name):
 
 
 def run_prompt():
+	interp = Interpreter()
 	while True:
 		line = input(">>> ")
-		if line is None:
-			break
-		run(line)
+		if line is not None:
+			if line.startswith("{"):
+				while True:
+					temp = input("\t")
+					if temp == "}":
+						break
+					line += temp
+				line += "}"
+
+			scan = Scanner(line)
+			tokens = scan.scan_tokens()
+			parser = Parser(tokens)
+			stmts = parser.parse()
+			interp.interpret(stmts)
 
 
 if __name__ == "__main__":
@@ -48,6 +60,8 @@ if __name__ == "__main__":
 		print("Usage: plox [script]")
 		sys.exit(32)
 	elif len(sys.argv) == 2:
+		print("[Plox start]")
 		run_program(sys.argv[1])
+		print("[Plox end]")
 	else:
 		run_prompt()
