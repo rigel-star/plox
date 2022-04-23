@@ -222,7 +222,9 @@ class Scanner:
 					self.advance()
 					while self.peek().isdigit():
 						self.advance()
-				self.add_token(TokenType.NUMBER, self.source[self.start:self.current])
+					self.add_token(TokenType.NUMBER, float(self.source[self.start:self.current]))
+				else:
+					self.add_token(TokenType.NUMBER, int(self.source[self.start:self.current]))
 
 		elif c.isalpha() or c == "_":
 			while self.peek().isalnum():

@@ -10,14 +10,17 @@ class Parser:
 		self.tokens = tokens
 		self.current = 0
 
+
 	def parse(self):
 		expr = self.parse_expr()
 		return expr
 
-	def parse_expr(self):
-		return self.parse_bitwise_operation()
 
-	def parse_bitwise_operation(self):
+	def parse_expr(self):
+		return self.parse_bitwise()
+
+
+	def parse_bitwise(self):
 		expr = self.parse_equality()
 
 		if self.match(TokenType.BIT_AND, TokenType.BIT_OR, TokenType.BIT_XOR, TokenType.BIT_SHIFT_LEFT, TokenType.BIT_SHIFT_RIGHT):
@@ -27,6 +30,7 @@ class Parser:
 			expr = BinaryExpr(expr, operator, right)
 
 		return expr
+
 
 	def parse_equality(self):
 		expr = self.parse_comparision()
@@ -39,6 +43,7 @@ class Parser:
 
 		return expr
 
+
 	def parse_comparision(self):
 		expr = self.parse_term()
 
@@ -49,6 +54,7 @@ class Parser:
 			expr = BinaryExpr(expr, operator, right)
 
 		return expr
+
 
 	def parse_term(self):
 		expr = self.parse_factor()
@@ -61,6 +67,7 @@ class Parser:
 
 		return expr
 
+
 	def parse_factor(self):
 		expr = self.parse_unary()
 
@@ -72,6 +79,7 @@ class Parser:
 
 		return expr
 
+
 	def parse_unary(self):
 		if self.match(TokenType.NOT, TokenType.MINUS, TokenType.BIT_NEGATE):
 			operator = self.peek()
@@ -81,6 +89,7 @@ class Parser:
 			return un
 		
 		return self.parse_primary()
+
 
 	def parse_primary(self):
 		expr = None
@@ -109,10 +118,12 @@ class Parser:
 
 		return expr
 
+
 	def consume(self, typ, msg):
 		if self.check(typ):
 			return self.advance()
 		self.error(self.peek(), msg)
+
 
 	def error(self, token, msg):
 		if token.token_type == TokenType.EOF:
@@ -121,6 +132,7 @@ class Parser:
 			print(f'[line {token.line}] at {token.lexeme} {msg}')
 		sys.exit(68)
 
+
 	def match(self, *types):
 		for typ in types:
 			if self.check(typ):
@@ -128,21 +140,26 @@ class Parser:
 				return True
 		return False
 
+
 	def advance(self):
 		if not self.is_at_end():
 			self.current += 1
 		return self.previous()
 
+
 	def is_at_end(self):
 		return self.peek().token_type == TokenType.EOF
+
 
 	def check(self, typ):
 		if self.is_at_end():
 			return False
 		return self.peek().token_type == typ
 
+
 	def peek(self):
 		return self.tokens[self.current]
+
 
 	def previous(self):
 		return self.tokens[self.current - 1]

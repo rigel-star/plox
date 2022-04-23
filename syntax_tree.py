@@ -18,12 +18,6 @@ class ExprVisitor():
 	
 	def visit_unary_expr(self, unary):
 		pass
-	
-	def visit_logical_expr(self, logical):
-		pass
-
-	def visit_bitwise_expr(self, bitwise):
-		pass
 
 
 class Expr:
@@ -41,7 +35,7 @@ class AssignExpr(Expr):
 
 
 class BinaryExpr(Expr):
-	def __init__(self, expr_right: Expr, operator: Token, expr_left: Expr):
+	def __init__(self, expr_left: Expr, operator: Token, expr_right: Expr):
 		self.right_expr = expr_right
 		self.operator = operator
 		self.left_expr = expr_left
@@ -76,16 +70,6 @@ class GroupingExpr(Expr):
 
 	def accept(self, visitor: ExprVisitor):
 		return visitor.visit_grouping_expr(self)
-
-
-class LogicalExpr(Expr):
-	def __init__(self, left: Expr, operator: Token, right: Token):
-		self.left_expr = left
-		self.operator = operator
-		self.right_expr = right
-
-	def accept(self, visitor: ExprVisitor):
-		return visitor.visit_logical_expr(self)
 	
 
 # For debugging purpose only
