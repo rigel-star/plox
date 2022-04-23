@@ -1,10 +1,13 @@
 from typing import Dict
 
-
 class Environment:
-	def __init__(self, enclosing=None):
+	def __init__(self, enclosing = None, pre = None):
 		self.variable_values: Dict[str, object] = dict()
 		self.enclosing = enclosing
+
+		if pre:
+			for key, value in pre.items():
+				self.variable_values[key] = value
 
 
 	def declare(self, name, value):
@@ -21,7 +24,7 @@ class Environment:
 				self.enclosing.variable_values[name] = value
 			return
 
-		print(f"Undefined variable '{name}'")
+		print(f"Undefined identifier '{name}'")
 
 
 	def get_var_value(self, name):
@@ -31,13 +34,13 @@ class Environment:
 		if self.enclosing:
 			if name in self.enclosing.variable_values:
 				return self.enclosing.variable_values.get(name)
-		
-		return f"Undefined variable '{name}'"
+
+		print(f"Undefined identifier '{name}'")
 
 
 	def dump(self):
 		if self.enclosing:
-			for key, value in self.enclosing.items():
+			for key, value in self.enclosing.variable_values.items():
 				print(f"{key} -> {value}")
 
 		for key, value in self.variable_values.items():

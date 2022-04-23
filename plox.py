@@ -60,8 +60,6 @@ if __name__ == "__main__":
 		print("Usage: plox [script]")
 		sys.exit(32)
 	elif len(sys.argv) == 2:
-		print("[Plox start]")
 		run_program(sys.argv[1])
-		print("[Plox end]")
 	else:
 		run_prompt()

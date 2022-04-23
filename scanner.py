@@ -4,7 +4,6 @@ from enum import Enum
 had_error: bool = False
 
 class TokenType(Enum):
-
 	# single character tokens
 	LEFT_PAREN = 0
 	RIGHT_PAREN = 1
@@ -42,7 +41,7 @@ class TokenType(Enum):
 	STRING = 27
 	NUMBER = 28
 
-	# keywords 
+	# keywords
 	AND = 29
 	CLASS = 30
 	ELSE = 31
@@ -60,12 +59,13 @@ class TokenType(Enum):
 	VAR = 43
 	WHILE = 44
 	EOF = 45
+	ENUM = 46
 
 
 KEYWORDS = {
-	'and': TokenType.AND, 
-	'or': TokenType.OR, 
-	'class': TokenType.CLASS, 
+	'and': TokenType.AND,
+	'or': TokenType.OR,
+	'class': TokenType.CLASS,
 	'if': TokenType.IF,
 	'else': TokenType.ELSE,
 	'true': TokenType.TRUE,
@@ -78,7 +78,8 @@ KEYWORDS = {
 	'return': TokenType.RETURN,
 	'super': TokenType.SUPER,
 	'this': TokenType.THIS,
-	'while': TokenType.WHILE
+	'while': TokenType.WHILE,
+	'enum': TokenType.ENUM
 }
 
 

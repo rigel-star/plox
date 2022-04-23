@@ -7,16 +7,16 @@ from scanner import Token, TokenType
 class ExprVisitor:
 	def visit_assign_expr(self, assign):
 		pass
-	
+
 	def visit_binary_expr(self, binary):
 		pass
-	
+
 	def visit_grouping_expr(self, grouping):
 		pass
-	
+
 	def visit_literal_expr(self, literal):
 		pass
-	
+
 	def visit_unary_expr(self, unary):
 		pass
 
@@ -24,6 +24,9 @@ class ExprVisitor:
 		pass
 
 	def visit_logical_expr(self, logical):
+		pass
+
+	def visit_func_call_expr(self, func):
 		pass
 
 
@@ -37,7 +40,7 @@ class AssignExpr(Expr):
 	def __init__(self, name: Token, value: Expr):
 		self.name = name
 		self.value = value
-		
+
 	def accept(self, visitor: ExprVisitor):
 		return visitor.visit_assign_expr(self)
 
@@ -91,11 +94,20 @@ class LogicalExpr(Expr):
 		self.operator = operator
 		self.left_expr = left_expr
 
-	def accept(self, visitor):
+	def accept(self, visitor: ExprVisitor):
 		return visitor.visit_logical_expr(self)
-	
 
-# Statements in program 
+
+class FunctionCallExpr(Expr):
+	def __init__(self, callee, args):
+		self.callee = callee
+		self.arguments = args
+
+	def accept(self, visitor: ExprVisitor):
+		return visitor.visit_func_call_expr(self)
+
+
+# Statements in program
 class StmtVisitor:
 	def visit_print_stmt(self, printt):
 		pass
@@ -112,6 +124,15 @@ class StmtVisitor:
 	def visit_if_stmt(self, if_stmt):
 		pass
 
+	def visit_while_stmt(self, while_stmt):
+		pass
+
+<<<<<<< HEAD
+=======
+	def visit_func_decl_stmt(self, func_decl):
+		pass
+
+>>>>>>> feature-branch
 
 class Stmt:
 	def accept(self, visitor: StmtVisitor):
@@ -161,6 +182,28 @@ class IfStmt(Stmt):
 		visitor.visit_if_stmt(self)
 
 
+class WhileStmt(Stmt):
+	def __init__(self, condition: Expr, body: Stmt):
+		self.condition = condition
+		self.body = body
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_while_stmt(self)
+
+
+<<<<<<< HEAD
+=======
+class FunctionDeclStmt(Stmt):
+	def __init__(self, name, params, body):
+		self.name = name
+		self.parameters = params
+		self.body = body
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_func_decl_stmt(self)
+
+
+>>>>>>> feature-branch
 # For debugging purpose only
 class ASTPrinter(ExprVisitor):
 	def printer(self, expr: Expr):

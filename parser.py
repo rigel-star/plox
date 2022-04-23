@@ -1,5 +1,4 @@
 import sys
-
 from scanner import *
 from syntax_tree import *
 from typing import List
@@ -10,10 +9,15 @@ class Parser:
 		self.tokens = tokens
 		self.current = 0
 
-		#for token in tokens:
-		#	print(token)
+		# for token in tokens:
+<<<<<<< HEAD
+		# 	print(token)
 
-		#sys.exit(1)
+=======
+		#  	print(token)
+		#
+>>>>>>> feature-branch
+		# sys.exit(1)
 
 
 	def parse(self):
@@ -30,35 +34,67 @@ class Parser:
 	def parse_decl_stmt(self):
 		if self.match(TokenType.VAR):
 			self.advance() # advance to identifier name
-			identifier_token = self.consume(TokenType.IDENTIFIER, "Parse error: Expected variable name")
+			identifier_token = self.consume(TokenType.IDENTIFIER, "Expected variable name after var keyword.")
 
 			initialization = None
 			if self.match(TokenType.EQUAL):
 				self.advance()
 				initialization = self.parse_expr()
 
-			self.consume(TokenType.SEMICOLON, "Parse error: expected ';' after expression")
+			self.consume(TokenType.SEMICOLON, "Expected ';' after expression. Variable declaration must end with ;.")
 
 			var_stmt = VarDeclareStmt(identifier_token.lexeme, initialization)
 			return var_stmt
 
+		if self.match(TokenType.FUN):
+			self.advance() # advance pass 'fun'
+			func_decl = self.parse_func_decl_stmt()
+			return func_decl
+
 		return self.parse_stmt()
+
+
+	def parse_func_decl_stmt(self):
+		name = self.consume(TokenType.IDENTIFIER, "Expected function name after 'fun' keyword")
+		self.consume(TokenType.LEFT_PAREN, "Expected '(' name")
+
+		params = list()
+		if not self.check(TokenType.RIGHT_PAREN):
+			params.append(self.consume(TokenType.IDENTIFIER, "Expected parameter name inside parenthesis"))
+
+			while self.check(TokenType.COMMA):
+				self.advance()
+				if len(params) >= 100:
+					print("Can't have more than 100 parameters")
+					sys.exit(11)
+
+				params.append(self.consume(TokenType.IDENTIFIER, "Expected parameter name inside parenthesis"))
+
+		self.consume(TokenType.RIGHT_PAREN, "Expected ')' after parameter(s)")
+		self.consume(TokenType.LEFT_BRACE, "Expected '{' before function body")
+		body = self.parse_block_stmt()
+
+		func_decl = FunctionDeclStmt(name, params, body)
+		return func_decl
 
 
 	def parse_stmt(self):
 		if self.match(TokenType.PRINT):
 			self.advance()
+			self.consume(TokenType.LEFT_PAREN, "Expected '(' after print statement")
 			return self.parse_print_stmt()
+
 		elif self.match(TokenType.LEFT_BRACE):
 			self.advance()
 			stmts = self.parse_block_stmt()
 			block = BlockStmt(stmts)
 			return block
+
 		elif self.match(TokenType.IF):
 			self.advance()
-			self.consume(TokenType.LEFT_PAREN, "Parse error: expected '(' before expression")
+			self.consume(TokenType.LEFT_PAREN, "Expected '(' before conditional expression")
 			condition = self.parse_expr()
-			self.consume(TokenType.RIGHT_PAREN, "Parse error: expected ')' after expression")
+			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after conditional expression")
 
 			if_true = self.parse_decl_stmt()
 			if_false = None
@@ -69,6 +105,22 @@ class Parser:
 			if_stmt = IfStmt(condition, if_true, if_false)
 			return if_stmt
 
+		elif self.match(TokenType.WHILE):
+			self.advance()
+<<<<<<< HEAD
+			self.consume(TokenType.LEFT_PAREN, "Parse error: expected '(' before expression")
+			condition = self.parse_expr()
+			self.consume(TokenType.RIGHT_PAREN, "Parse error: expected ')' after expression")
+=======
+			self.consume(TokenType.LEFT_PAREN, "Expected '(' before conditional expression")
+			condition = self.parse_expr()
+			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after conditional expression")
+>>>>>>> feature-branch
+
+			body = self.parse_decl_stmt()
+			while_stmt = WhileStmt(condition, body)
+			return while_stmt
+
 		return self.parse_expr_stmt()
 
 
@@ -77,20 +129,21 @@ class Parser:
 		while not self.is_at_end() and not self.check(TokenType.RIGHT_BRACE):
 			stmts.append(self.parse_decl_stmt())
 
-		self.consume(TokenType.RIGHT_BRACE, "Parse error: expected '}' after block")
+		self.consume(TokenType.RIGHT_BRACE, "Expected '}' to end block statement")
 		return stmts
 
 
 	def parse_expr_stmt(self):
 		expr = self.parse_expr()
-		self.consume(TokenType.SEMICOLON, "Parse error: expected ';' after expression")
+		self.consume(TokenType.SEMICOLON, "Expected ';' after expression")
 		expr_stm = ExprStmt(expr)
 		return expr_stm
 
 
 	def parse_print_stmt(self):
 		expr: Expr = self.parse_expr()
-		self.consume(TokenType.SEMICOLON, "Parse error: expected ';' after expression")
+		self.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression")
+		self.consume(TokenType.SEMICOLON, "Expected ';' after print statement")
 		print_stmt = PrintStmt(expr)
 		return print_stmt
 
@@ -101,7 +154,6 @@ class Parser:
 
 	def parse_assign_expr(self):
 		expr = self.parse_or_expr()
-
 		if self.match(TokenType.EQUAL):
 			equals = self.peek()
 			self.advance()
@@ -113,7 +165,6 @@ class Parser:
 				return assign
 
 			self.error(equals, "Invalid lvalue")
-
 		return expr
 
 
@@ -208,8 +259,27 @@ class Parser:
 			right = self.parse_unary()
 			un = UnaryExpr(operator, right)
 			return un
-		
-		return self.parse_primary()
+
+		return self.parse_func_call()
+
+
+	def parse_func_call(self):
+		expr = self.parse_primary()
+
+		if self.check(TokenType.LEFT_PAREN):
+			self.advance() # advance pass (
+			args: List[Expr] = list()
+
+			if not self.check(TokenType.RIGHT_PAREN):
+				args.append(self.parse_expr())
+
+				while self.check(TokenType.COMMA):
+					self.advance()
+					args.append(self.parse_expr())
+
+			self.consume(TokenType.RIGHT_PAREN, "Expected ')' to end function call")
+			expr = FunctionCallExpr(expr, args)
+		return expr
 
 
 	def parse_primary(self):
@@ -234,7 +304,7 @@ class Parser:
 		if self.match(TokenType.LEFT_PAREN):
 			self.advance()
 			expr = self.parse_expr()
-			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after expression")
+			self.consume(TokenType.RIGHT_PAREN, "Mismatched parenthesis")
 			expr = GroupingExpr(expr)
 
 		if self.match(TokenType.IDENTIFIER):
@@ -251,11 +321,8 @@ class Parser:
 
 
 	def error(self, token, msg):
-		if token.token_type == TokenType.EOF:
-			print(f'[line {token.line}] at end {msg}')
-		else:
-			print(f'[line {token.line}] at {token.lexeme} {msg}')
-		sys.exit(68)
+		print(f'[line {token.line}] {msg}')
+		sys.exit(12)
 
 
 	def match(self, *types):
@@ -288,21 +355,3 @@ class Parser:
 
 	def previous(self):
 		return self.tokens[self.current - 1]
-
-
-
-if __name__ == "__main__":
-	source = "45 != 43"
-	scan = Scanner(source)
-	tokens = scan.scan_tokens()
-	parser = Parser(tokens)
-	expr = parser.parse()
-
-	print(expr)
-
-	if not expr:
-		print('Why the fuck it is null')
-		sys.exit(69)
-
-	ast = ASTPrinter()
-	print(ast.printer(expr))
