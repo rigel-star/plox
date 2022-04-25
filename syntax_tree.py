@@ -29,6 +29,9 @@ class ExprVisitor:
 	def visit_func_call_expr(self, func):
 		pass
 
+	def visit_anon_func_expr(self, anon):
+		pass
+
 
 # Expressions in program
 class Expr:
@@ -105,6 +108,15 @@ class FunctionCallExpr(Expr):
 
 	def accept(self, visitor: ExprVisitor):
 		return visitor.visit_func_call_expr(self)
+
+
+class AnonFunctionExpr(Expr):
+	def __init__(self, params, body):
+		self.parameters = params
+		self.body = body
+
+	def accept(self, visitor: ExprVisitor):
+		return visitor.visit_anon_func_expr(self)
 
 
 # Statements in program

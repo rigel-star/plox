@@ -11,7 +11,7 @@ class Parser:
 
 		# for token in tokens:
 		# 	print(token)
-
+		#
 		# sys.exit(1)
 
 
@@ -29,16 +29,16 @@ class Parser:
 	def parse_decl_stmt(self):
 		if self.match(TokenType.VAR):
 			self.advance() # advance to identifier name
-			identifier_token = self.consume(TokenType.IDENTIFIER, "Expected variable name after var keyword.")
+			name = self.consume(TokenType.IDENTIFIER, "Expected variable name after var keyword.")
 
 			initialization = None
 			if self.match(TokenType.EQUAL):
 				self.advance()
-				initialization = self.parse_expr()
+				initialization = self.parse_anon_func_expr()
 
 			self.consume(TokenType.SEMICOLON, "Expected ';' after expression. Variable declaration must end with ;.")
 
-			var_stmt = VarDeclareStmt(identifier_token.lexeme, initialization)
+			var_stmt = VarDeclareStmt(name.lexeme, initialization)
 			return var_stmt
 
 		if self.match(TokenType.FUN):
@@ -50,7 +50,7 @@ class Parser:
 
 
 	def parse_func_decl_stmt(self):
-		name = self.consume(TokenType.IDENTIFIER, "Expected function name after 'fun' keyword")
+		name = self.consume(TokenType.IDENTIFIER, "Function statements require a function name")
 		self.consume(TokenType.LEFT_PAREN, "Expected '(' name")
 
 		params = list()
@@ -138,6 +138,35 @@ class Parser:
 
 
 	def parse_expr(self):
+		return self.parse_anon_func_expr()
+
+
+	def parse_anon_func_expr(self):
+		anon_func = None
+
+		if self.match(TokenType.FUN):
+			self.advance()
+			self.consume(TokenType.LEFT_PAREN, "Expected '(' after 'fun' keyword in anonymous function expression")
+
+			params = list()
+			if not self.check(TokenType.RIGHT_PAREN):
+				params.append(self.consume(TokenType.IDENTIFIER, "Expected parameter name inside parenthesis"))
+
+				while self.check(TokenType.COMMA):
+					self.advance()
+					if len(params) >= 100:
+						print("Can't have more than 100 parameters")
+						sys.exit(11)
+
+					params.append(self.consume(TokenType.IDENTIFIER, "Expected parameter name inside parenthesis"))
+
+			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after parameter(s)")
+			self.consume(TokenType.LEFT_BRACE, "Expected '{' before function body")
+			body = self.parse_block_stmt()
+
+			anon_func = AnonFunctionExpr(params, body)
+			return anon_func
+
 		return self.parse_assign_expr()
 
 

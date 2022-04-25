@@ -183,6 +183,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		return self.var_env.get_var_value(var.name.lexeme)
 
 
+	def visit_anon_func_expr(self, anon):
+		from callable import PloxFunction
+		func = FunctionDeclStmt(None, anon.parameters, anon.body)
+		plox_func = PloxFunction(func)
+		return plox_func
+
+
 	def visit_assign_expr(self, assign):
 		var_name = assign.name.lexeme
 		value = self.evaluate(assign.value)
