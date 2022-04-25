@@ -127,12 +127,9 @@ class StmtVisitor:
 	def visit_while_stmt(self, while_stmt):
 		pass
 
-<<<<<<< HEAD
-=======
 	def visit_func_decl_stmt(self, func_decl):
 		pass
 
->>>>>>> feature-branch
 
 class Stmt:
 	def accept(self, visitor: StmtVisitor):
@@ -191,8 +188,6 @@ class WhileStmt(Stmt):
 		visitor.visit_while_stmt(self)
 
 
-<<<<<<< HEAD
-=======
 class FunctionDeclStmt(Stmt):
 	def __init__(self, name, params, body):
 		self.name = name
@@ -203,7 +198,6 @@ class FunctionDeclStmt(Stmt):
 		visitor.visit_func_decl_stmt(self)
 
 
->>>>>>> feature-branch
 # For debugging purpose only
 class ASTPrinter(ExprVisitor):
 	def printer(self, expr: Expr):

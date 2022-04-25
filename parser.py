@@ -10,13 +10,8 @@ class Parser:
 		self.current = 0
 
 		# for token in tokens:
-<<<<<<< HEAD
 		# 	print(token)
 
-=======
-		#  	print(token)
-		#
->>>>>>> feature-branch
 		# sys.exit(1)
 
 
@@ -107,15 +102,9 @@ class Parser:
 
 		elif self.match(TokenType.WHILE):
 			self.advance()
-<<<<<<< HEAD
-			self.consume(TokenType.LEFT_PAREN, "Parse error: expected '(' before expression")
-			condition = self.parse_expr()
-			self.consume(TokenType.RIGHT_PAREN, "Parse error: expected ')' after expression")
-=======
 			self.consume(TokenType.LEFT_PAREN, "Expected '(' before conditional expression")
 			condition = self.parse_expr()
 			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after conditional expression")
->>>>>>> feature-branch
 
 			body = self.parse_decl_stmt()
 			while_stmt = WhileStmt(condition, body)
