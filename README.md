@@ -1,27 +1,69 @@
 # plox
 Plox programming language
 
-Example:
+## Examples:
+
+### Variable declaration
+```
+var name = [value];
+```
+
+### Function declaration
+```
+fun name(param1, param2, ...)
+{
+    // body
+}
+```
+
+or
 
 ```
-fun callMe(msg)
+var func_name = fun (a, b, ...) {
+    // body
+};
+```
+
+## If ... else
+```
+if(condition)
 {
-  print("Your message is: " + msg);
-}
-
-callMe("Hello");
-
-var a = 134;
-var is_even = !(a & 1);
-
-if(is_even)
-{
-  print("number is even");
+    // body
 }
 else
 {
-  print("number is odd");
+    // body
 }
+```
+
+### Loop(While)
+```
+while(condition)
+{
+    // body
+}
+```
+
+## Anonymous function
+```
+fun caller(func, arg)
+{
+    func(arg);
+}
+
+caller(fun (arg) {
+    print(arg)
+}, "Ramesh");
+```
+
+## Arithmetic Operations
+```
++ - * /
+```
+
+## Bit operations
+```
+& ^ | << >> ~
 ```
 
 ## Run:
