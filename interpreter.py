@@ -80,7 +80,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 			if self.check_number_operand(left) and self.check_number_operand(right):
 				return left - right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for -: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("-", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.PLUS:
 			if self.check_number_operand(left) and self.check_number_operand(right):
@@ -88,7 +88,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 			elif isinstance(left, str) and isinstance(right, str):
 				return str(left) + str(right)
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for +: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("+", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.SLASH:
 			if self.check_number_operand(left) and self.check_number_operand(right):
@@ -96,7 +96,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 					self.runtime_error(ErrorType.PloxDivisonByZeroError)
 				return left / right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for /: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("/", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.STAR:
 			if self.check_number_operand(left) and self.check_number_operand(right):
@@ -104,61 +104,61 @@ class Interpreter(ExprVisitor, StmtVisitor):
 			elif any([self.check_str_operand(left), self.check_str_operand(right)]) and any([self.check_int_operand(left), self.check_int_operand(right)]):
 				return left * right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for *: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("*", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.BIT_AND:
 			if self.check_int_operand(left) and self.check_int_operand(right):
 				return left & right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for &: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("&", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.BIT_OR:
 			if self.check_int_operand(left) and self.check_int_operand(right):
 				return left | right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for |: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("|", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.BIT_XOR:
 			if self.check_int_operand(left) and self.check_int_operand(right):
 				return left ^ right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for ^: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("^", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.BIT_SHIFT_LEFT:
 			if self.check_int_operand(left) and self.check_int_operand(right):
 				return left << right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for <<: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("<<", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.BIT_SHIFT_RIGHT:
 			if self.check_int_operand(left) and self.check_int_operand(right):
 				return left >> right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for >>: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error(">>", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.GREATER:
 			if self.check_number_operand(left) and self.check_number_operand(right):
 				return left > right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for >: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error(">", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.GREATER_EQUAL:
 			if self.check_number_operand(left) and self.check_number_operand(right):
 				return left >= right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for >=: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error(">=", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.LESS:
 			if self.check_number_operand(left) and self.check_number_operand(right):
 				return left < right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for <: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("<", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.LESS_EQUAL:
 			if self.check_number_operand(left) and self.check_number_operand(right):
 				return left <= right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for <=: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("<=", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.NOT_EQUAL:
 			if type(left) == type(right):
@@ -166,7 +166,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 			elif any([self.check_int_operand(left), self.check_int_operand(right)]) and any([self.check_float_operand(left), self.check_float_operand(right)]):
 				return left != right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for !=: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("!=", left_type_name, right_type_name)
 
 		elif binary.operator.token_type == TokenType.EQUAL_EQUAL:
 			if type(left) == type(right):
@@ -174,7 +174,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 			elif any([self.check_int_operand(left), self.check_int_operand(right)]) and any([self.check_float_operand(left), self.check_float_operand(right)]):
 				return left == right
 
-			self.runtime_error(ErrorType.PloxTypeError, f"unsupported operand type(s) for ==: {left_type_name} and {right_type_name}")
+			self.runtime_unsupported_operands_error("==", left_type_name, right_type_name)
 
 		return None
 
@@ -321,3 +321,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
 	def evaluate(self, expr):
 		return expr.accept(self)
+
+
+	def runtime_unsupported_operands_error(self, operator, type1, type2):
+		self.runtime_error(ErrorType.PloxTypeError, f'unsupported operand type(s) for {operator}: {type1} and {type2}')
