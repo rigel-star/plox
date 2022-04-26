@@ -10,6 +10,23 @@ class ReturnException(Exception):
         self.value = value
 
 
+class PloxInstance():
+    def __init__(self, klass):
+        self.klass = klass
+        self.fields = dict()
+
+
+    def get(self, name):
+        if name in self.fields:
+            return self.fields[name]
+
+        print(f"Undefined property '{name}'")
+
+
+    def set(self, name, value):
+        self.fields[name] = value
+
+
 # callable interface
 class PloxCallable:
     def call(self, interp: Interpreter, args: List[object]):
@@ -49,3 +66,17 @@ class PloxFunction(PloxCallable):
 
     def __str__(self):
         return f'<function {self.declaration.name.lexeme if self.declaration.name else "anonymous"}>'
+
+
+class PloxClass(PloxCallable):
+    def __init__(self, name):
+        self.name = name
+
+
+    def call(self, interp, args):
+        instance = PloxInstance(self)
+        return instance
+
+
+    def __str__(self):
+        return f'<class {self.name}>'

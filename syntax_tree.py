@@ -32,6 +32,12 @@ class ExprVisitor:
 	def visit_anon_func_expr(self, anon):
 		pass
 
+	def visit_class_prop_get_expr(self, get):
+		pass
+
+	def visit_class_prop_set_expr(self, set):
+		pass
+
 
 # Expressions in program
 class Expr:
@@ -101,6 +107,16 @@ class LogicalExpr(Expr):
 		return visitor.visit_logical_expr(self)
 
 
+class GetExpr(Expr):
+	def __init__(self, obj_name, func_name, arguments):
+		self.obj_name = obj_name
+		self.func_name = func_name
+		self.arguments = arguments
+
+	def accept(self, get):
+		get.visit_get_expr(self)
+
+
 class FunctionCallExpr(Expr):
 	def __init__(self, callee, args):
 		self.callee = callee
@@ -118,6 +134,25 @@ class AnonFunctionExpr(Expr):
 	def accept(self, visitor: ExprVisitor):
 		return visitor.visit_anon_func_expr(self)
 
+
+class ClassPropertyGetExpr(Expr):
+	def __init__(self, obj, name):
+		self.obj = obj
+		self.name = name
+
+	def accept(self, visitor: ExprVisitor):
+		visitor.visit_class_prop_get_expr(self)
+
+
+class ClassPropertySetExpr(Expr):
+	def __init__(self, obj, name, value):
+		self.obj = obj
+		self.name = name
+		self.value = value
+
+	def accept(self, visitor: ExprVisitor):
+		visitor.visit_class_prop_set_expr(self)
+		
 
 # Statements in program
 class StmtVisitor:
@@ -143,6 +178,9 @@ class StmtVisitor:
 		pass
 
 	def visit_return_stmt(self, ret):
+		pass
+
+	def visit_class_decl_stmt(self, cls):
 		pass
 
 
@@ -211,6 +249,15 @@ class FunctionDeclStmt(Stmt):
 
 	def accept(self, visitor: StmtVisitor):
 		visitor.visit_func_decl_stmt(self)
+
+
+class ClassDeclStmt(Stmt):
+	def __init__(self, name, funcs):
+		self.name = name
+		self.funcs = funcs
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_class_decl_stmt(self)
 
 
 class ReturnStmt(Stmt):

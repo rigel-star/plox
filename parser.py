@@ -26,10 +26,9 @@ class Parser:
 
 
 	def parse_stmt(self):
+		# parsing of variable declaration starts here
 		if self.match(TokenType.VAR):
-			self.advance()
-			var_decl = self.parse_var_decl_stmt()
-			return var_decl
+			return self.parse_var_decl_stmt()
 
 		elif self.match(TokenType.PRINT):
 			self.advance()
@@ -37,9 +36,10 @@ class Parser:
 			return self.parse_print_stmt()
 
 		elif self.match(TokenType.FUN):
-			self.advance() # advance pass 'fun'
-			func_decl = self.parse_func_decl_stmt()
-			return func_decl
+			return self.parse_func_decl_stmt()
+
+		elif self.match(TokenType.CLASS):
+			return self.parse_class_decl_stmt()
 
 		elif self.match(TokenType.LEFT_BRACE):
 			self.advance()
@@ -88,10 +88,13 @@ class Parser:
 
 
 	def parse_var_decl_stmt(self):
-		print(self.peek())
+		self.advance() # advance pass 'var' keyword
 		name = self.consume(TokenType.IDENTIFIER, "Expected variable name after var keyword.")
 
 		initialization = None
+
+		#checking if variable name follows equal sign. If it does,
+		# parse the expression that comes after.
 		if self.match(TokenType.EQUAL):
 			self.advance()
 			initialization = self.parse_anon_func_expr()
@@ -103,6 +106,7 @@ class Parser:
 
 
 	def parse_func_decl_stmt(self):
+		self.advance() # advance pass 'fun' keyword
 		name = self.consume(TokenType.IDENTIFIER, "Function statements require a function name")
 		self.consume(TokenType.LEFT_PAREN, "Expected '(' name")
 
@@ -124,6 +128,34 @@ class Parser:
 
 		func_decl = FunctionDeclStmt(name, params, body)
 		return func_decl
+
+
+	def parse_class_decl_stmt(self):
+		'''
+		Class is a collection of variables and method(function).
+
+		Syntax:
+
+		class ObjName {
+			fun callMe()
+			{
+				print("Hello world");
+			}
+		}
+		'''
+		self.advance() #advance pass 'class' keyword
+
+		cls_name = self.consume(TokenType.IDENTIFIER, "Expected class name after 'class' keyword")
+		self.consume(TokenType.LEFT_BRACE, "Expected '{' before class body")
+
+		methods = list()
+		while not self.check(TokenType.RIGHT_BRACE) and not self.is_at_end():
+			methods.append(self.parse_func_decl_stmt())
+
+		self.consume(TokenType.RIGHT_BRACE, "Expected '}' after class body")
+
+		cls_decl_stmt = ClassDeclStmt(cls_name, methods)
+		return cls_decl_stmt
 
 
 	def parse_block_stmt(self):
@@ -186,16 +218,19 @@ class Parser:
 	def parse_assign_expr(self):
 		expr = self.parse_or_expr()
 		if self.match(TokenType.EQUAL):
-			equals = self.peek()
 			self.advance()
-			value = self.parse_assign_expr()
+			value = self.parse_or_expr() # parse_assign_expr for recursive assignment
 
 			if isinstance(expr, VariableExpr):
 				identifier_token = expr.name
 				assign = AssignExpr(identifier_token, value)
 				return assign
+			elif isinstance(expr, ClassPropertyGetExpr):
+				set = ClassPropertySetExpr(expr.obj, expr.name, value)
+				return set
 
-			self.error(equals, "Invalid lvalue")
+			print("Invalid lvalue")
+			sys.exit(16)
 		return expr
 
 
@@ -310,6 +345,12 @@ class Parser:
 
 			self.consume(TokenType.RIGHT_PAREN, "Expected ')' to end function call")
 			expr = FunctionCallExpr(expr, args)
+
+		elif self.check(TokenType.DOT):
+			self.advance() # advance pass '.'
+			name = self.consume(TokenType.IDENTIFIER, "Expected property name after '.'")
+			expr = ClassPropertyGetExpr(expr, name)
+
 		return expr
 
 
