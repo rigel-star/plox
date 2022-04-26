@@ -272,6 +272,16 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		return None
 
 
+	def visit_return_stmt(self, ret):
+		from callable import ReturnException
+		return_value = None
+
+		if ret.value is not None:
+			return_value = self.evaluate(ret.value)
+
+		raise ReturnException(return_value)
+
+
 	def visit_block_stmt(self, block):
 		env = Environment(enclosing=self.var_env)
 		self.execute_block(block.statements, env)

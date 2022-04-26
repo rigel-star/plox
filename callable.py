@@ -3,6 +3,13 @@ from environment import Environment
 from typing import List
 import sys
 
+
+class ReturnException(Exception):
+    def __init__(self, value):
+        super().__init__("")
+        self.value = value
+
+
 # callable interface
 class PloxCallable:
     def call(self, interp: Interpreter, args: List[object]):
@@ -26,7 +33,12 @@ class PloxFunction(PloxCallable):
         for i, arg in enumerate(args):
             env.declare(self.declaration.parameters[i].lexeme, arg)
 
-        interp.execute_block(self.declaration.body, env)
+        try:
+            interp.execute_block(self.declaration.body, env)
+        except ReturnException as e:
+            return e.value
+
+        return None
 
 
     def arity(self):

@@ -110,6 +110,18 @@ class Parser:
 			while_stmt = WhileStmt(condition, body)
 			return while_stmt
 
+		elif self.match(TokenType.RETURN):
+			token_name = self.peek()
+			self.advance()
+			return_value = None
+
+			if not self.check(TokenType.SEMICOLON):
+				return_value = self.parse_expr()
+
+			self.consume(TokenType.SEMICOLON, "Expected ';' after return statement")
+			return_stmt = ReturnStmt(token_name, return_value)
+			return return_stmt
+
 		return self.parse_expr_stmt()
 
 

@@ -142,6 +142,9 @@ class StmtVisitor:
 	def visit_func_decl_stmt(self, func_decl):
 		pass
 
+	def visit_return_stmt(self, ret):
+		pass
+
 
 class Stmt:
 	def accept(self, visitor: StmtVisitor):
@@ -208,6 +211,15 @@ class FunctionDeclStmt(Stmt):
 
 	def accept(self, visitor: StmtVisitor):
 		visitor.visit_func_decl_stmt(self)
+
+
+class ReturnStmt(Stmt):
+	def __init__(self, keyword, value):
+		self.keyword = keyword
+		self.value = value
+
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_return_stmt(self)
 
 
 # For debugging purpose only
