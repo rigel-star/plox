@@ -43,7 +43,7 @@ class TokenType(Enum):
 
 	# keywords
 	AND = 29
-	CLASS = 30
+	OBJECT = 30
 	ELSE = 31
 	FALSE = 32
 	FUN = 33
@@ -65,7 +65,7 @@ class TokenType(Enum):
 KEYWORDS = {
 	'and': TokenType.AND,
 	'or': TokenType.OR,
-	'class': TokenType.CLASS,
+	'object': TokenType.OBJECT,
 	'if': TokenType.IF,
 	'else': TokenType.ELSE,
 	'true': TokenType.TRUE,

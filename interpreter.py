@@ -186,7 +186,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 	def visit_anon_func_expr(self, anon):
 		from callable import PloxFunction
 		func = FunctionDeclStmt(None, anon.parameters, anon.body)
-		plox_func = PloxFunction(func)
+		plox_func = PloxFunction(func, self.var_env)
 		return plox_func
 
 
@@ -229,7 +229,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
 	def visit_func_decl_stmt(self, func_decl):
 		from callable import PloxFunction
-		function = PloxFunction(func_decl)
+		function = PloxFunction(func_decl, self.var_env)
 		self.var_env.variable_values[func_decl.name.lexeme] = function
 
 

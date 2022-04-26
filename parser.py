@@ -19,34 +19,87 @@ class Parser:
 		statements: List[Stmt] = list()
 
 		while not self.is_at_end():
-			stmt = self.parse_decl_stmt()
-			# print(stmt)
+			stmt = self.parse_stmt()
 			statements.append(stmt)
 
 		return statements
 
 
-	def parse_decl_stmt(self):
+	def parse_stmt(self):
 		if self.match(TokenType.VAR):
-			self.advance() # advance to identifier name
-			name = self.consume(TokenType.IDENTIFIER, "Expected variable name after var keyword.")
+			self.advance()
+			var_decl = self.parse_var_decl_stmt()
+			return var_decl
 
-			initialization = None
-			if self.match(TokenType.EQUAL):
-				self.advance()
-				initialization = self.parse_anon_func_expr()
+		elif self.match(TokenType.PRINT):
+			self.advance()
+			self.consume(TokenType.LEFT_PAREN, "Expected '(' after print statement")
+			return self.parse_print_stmt()
 
-			self.consume(TokenType.SEMICOLON, "Expected ';' after expression. Variable declaration must end with ;.")
-
-			var_stmt = VarDeclareStmt(name.lexeme, initialization)
-			return var_stmt
-
-		if self.match(TokenType.FUN):
+		elif self.match(TokenType.FUN):
 			self.advance() # advance pass 'fun'
 			func_decl = self.parse_func_decl_stmt()
 			return func_decl
 
-		return self.parse_stmt()
+		elif self.match(TokenType.LEFT_BRACE):
+			self.advance()
+			stmts = self.parse_block_stmt()
+			block = BlockStmt(stmts)
+			return block
+
+		elif self.match(TokenType.IF):
+			self.advance()
+			self.consume(TokenType.LEFT_PAREN, "Expected '(' before conditional expression")
+			condition = self.parse_expr()
+			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after conditional expression")
+
+			if_true = self.parse_var_decl_stmt()
+			if_false = None
+			if self.match(TokenType.ELSE):
+				self.advance()
+				if_false = self.parse_var_decl_stmt()
+
+			if_stmt = IfStmt(condition, if_true, if_false)
+			return if_stmt
+
+		elif self.match(TokenType.WHILE):
+			self.advance()
+			self.consume(TokenType.LEFT_PAREN, "Expected '(' before conditional expression")
+			condition = self.parse_expr()
+			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after conditional expression")
+
+			body = self.parse_var_decl_stmt()
+			while_stmt = WhileStmt(condition, body)
+			return while_stmt
+
+		elif self.match(TokenType.RETURN):
+			token_name = self.peek()
+			self.advance()
+			return_value = None
+
+			if not self.check(TokenType.SEMICOLON):
+				return_value = self.parse_expr()
+
+			self.consume(TokenType.SEMICOLON, "Expected ';' after return statement")
+			return_stmt = ReturnStmt(token_name, return_value)
+			return return_stmt
+
+		return self.parse_expr_stmt()
+
+
+	def parse_var_decl_stmt(self):
+		print(self.peek())
+		name = self.consume(TokenType.IDENTIFIER, "Expected variable name after var keyword.")
+
+		initialization = None
+		if self.match(TokenType.EQUAL):
+			self.advance()
+			initialization = self.parse_anon_func_expr()
+
+		self.consume(TokenType.SEMICOLON, "Expected ';' after expression. Variable declaration must end with ;.")
+
+		var_stmt = VarDeclareStmt(name.lexeme, initialization)
+		return var_stmt
 
 
 	def parse_func_decl_stmt(self):
@@ -73,62 +126,10 @@ class Parser:
 		return func_decl
 
 
-	def parse_stmt(self):
-		if self.match(TokenType.PRINT):
-			self.advance()
-			self.consume(TokenType.LEFT_PAREN, "Expected '(' after print statement")
-			return self.parse_print_stmt()
-
-		elif self.match(TokenType.LEFT_BRACE):
-			self.advance()
-			stmts = self.parse_block_stmt()
-			block = BlockStmt(stmts)
-			return block
-
-		elif self.match(TokenType.IF):
-			self.advance()
-			self.consume(TokenType.LEFT_PAREN, "Expected '(' before conditional expression")
-			condition = self.parse_expr()
-			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after conditional expression")
-
-			if_true = self.parse_decl_stmt()
-			if_false = None
-			if self.match(TokenType.ELSE):
-				self.advance()
-				if_false = self.parse_decl_stmt()
-
-			if_stmt = IfStmt(condition, if_true, if_false)
-			return if_stmt
-
-		elif self.match(TokenType.WHILE):
-			self.advance()
-			self.consume(TokenType.LEFT_PAREN, "Expected '(' before conditional expression")
-			condition = self.parse_expr()
-			self.consume(TokenType.RIGHT_PAREN, "Expected ')' after conditional expression")
-
-			body = self.parse_decl_stmt()
-			while_stmt = WhileStmt(condition, body)
-			return while_stmt
-
-		elif self.match(TokenType.RETURN):
-			token_name = self.peek()
-			self.advance()
-			return_value = None
-
-			if not self.check(TokenType.SEMICOLON):
-				return_value = self.parse_expr()
-
-			self.consume(TokenType.SEMICOLON, "Expected ';' after return statement")
-			return_stmt = ReturnStmt(token_name, return_value)
-			return return_stmt
-
-		return self.parse_expr_stmt()
-
-
 	def parse_block_stmt(self):
 		stmts = list()
 		while not self.is_at_end() and not self.check(TokenType.RIGHT_BRACE):
-			stmts.append(self.parse_decl_stmt())
+			stmts.append(self.parse_stmt())
 
 		self.consume(TokenType.RIGHT_BRACE, "Expected '}' to end block statement")
 		return stmts
