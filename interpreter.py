@@ -26,7 +26,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
 	def interpret(self, stmts: List[Stmt]):
 		for stmt in stmts:
-			#print(type(stmt.expr))
+			#print(stmt)
 			self.execute(stmt)
 
 		#self.var_env.dump()
@@ -227,6 +227,30 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		return callee.call(self, args)
 
 
+	def visit_class_prop_get_expr(self, get):
+		from callable import PloxInstance
+		obj = self.evaluate(get.obj)
+
+		if not isinstance(obj, PloxInstance):
+			print("Only instances can have properties")
+			sys.exit(14)
+
+		return obj.get(get.name.lexeme)
+
+
+	def visit_class_prop_set_expr(self, set):
+		from callable import PloxInstance
+		obj = self.evaluate(set.obj)
+
+		if not isinstance(obj, PloxInstance):
+			print("Only instances can have fields")
+			sys.exit(15)
+
+		value = self.evaluate(set.value)
+		obj.set(set.name.lexeme, value)
+		return value
+
+
 	def visit_func_decl_stmt(self, func_decl):
 		from callable import PloxFunction
 		function = PloxFunction(func_decl, self.var_env)
@@ -238,12 +262,10 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		expr_result = self.evaluate(printt.expr)
 		# sys.stdout.write(self.stringify(expr_result))
 		print(self.stringify(expr_result))
-		return None
 
 
 	def visit_expr_stmt(self, expr_stmt):
 		self.evaluate(expr_stmt.expr)
-		return None
 
 
 	def visit_if_stmt(self, if_stmt):
@@ -254,22 +276,19 @@ class Interpreter(ExprVisitor, StmtVisitor):
 			if if_stmt.if_false:
 				self.execute(if_stmt.if_false)
 
-		return None
-
 
 	def visit_var_declare_stmt(self, var_decl):
 		value = "undefined"
 		if var_decl.init is not None:
 			value = self.evaluate(var_decl.init)
 
-		self.var_env.variable_values[var_decl.name] = value
-		return None
+		#declare new variable
+		self.var_env.declare(var_decl.name, value)
 
 
 	def visit_while_stmt(self, while_stmt):
 		while self.evaluate(while_stmt.condition):
 			self.execute(while_stmt.body)
-		return None
 
 
 	def visit_return_stmt(self, ret):
@@ -282,10 +301,15 @@ class Interpreter(ExprVisitor, StmtVisitor):
 		raise ReturnException(return_value)
 
 
+	def visit_class_decl_stmt(self, cls):
+		import callable
+		kls = callable.PloxClass(cls.name.lexeme)
+		self.var_env.declare(cls.name.lexeme, kls)
+
+
 	def visit_block_stmt(self, block):
 		env = Environment(enclosing=self.var_env)
 		self.execute_block(block.statements, env)
-		return None
 
 
 	def execute_block(self, stmts, env):
