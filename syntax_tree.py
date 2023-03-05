@@ -179,10 +179,9 @@ class StmtVisitor:
 
 	def visit_return_stmt(self, ret):
 		pass
-
-	def visit_class_decl_stmt(self, cls):
+	
+	def visit_break_stmt(self, br):
 		pass
-
 
 class Stmt:
 	def accept(self, visitor: StmtVisitor):
@@ -251,15 +250,6 @@ class FunctionDeclStmt(Stmt):
 		visitor.visit_func_decl_stmt(self)
 
 
-class ClassDeclStmt(Stmt):
-	def __init__(self, name, funcs):
-		self.name = name
-		self.funcs = funcs
-
-	def accept(self, visitor: StmtVisitor):
-		visitor.visit_class_decl_stmt(self)
-
-
 class ReturnStmt(Stmt):
 	def __init__(self, keyword, value):
 		self.keyword = keyword
@@ -267,7 +257,13 @@ class ReturnStmt(Stmt):
 
 	def accept(self, visitor: StmtVisitor):
 		visitor.visit_return_stmt(self)
-
+  
+class BreakStmt(Stmt):
+	def __init__(self, stop):
+		self.stop = stop
+	
+	def accept(self, visitor: StmtVisitor):
+		visitor.visit_break_stmt(self)
 
 # For debugging purpose only
 class ASTPrinter(ExprVisitor):
