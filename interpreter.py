@@ -299,7 +299,19 @@ class Interpreter(ExprVisitor, StmtVisitor):
 			return_value = self.evaluate(ret.value)
 
 		raise ReturnException(return_value)
-
+	
+	def visit_break_stmt(self, br):
+		from callable import BreakException
+		break_value = None
+		if br is not None:
+			break_value = self.evaluate(br.stop)
+		if isinstance(break_value, bool):
+			if break_value == True:
+				self.stop = 1
+			else:
+				self.stop = 2
+		else:
+			raise BreakException('BreakValue Error', 'None Bool')
 
 	def visit_class_decl_stmt(self, cls):
 		import callable
