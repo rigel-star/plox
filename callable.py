@@ -9,6 +9,8 @@ class ReturnException(Exception):
         super().__init__("")
         self.value = value
 
+class BreakException(Exception):
+    pass
 
 class PloxInstance():
     def __init__(self, klass):
