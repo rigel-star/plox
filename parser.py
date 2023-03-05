@@ -83,7 +83,16 @@ class Parser:
 			self.consume(TokenType.SEMICOLON, "Expected ';' after return statement")
 			return_stmt = ReturnStmt(token_name, return_value)
 			return return_stmt
-
+		
+		elif self.match(TokenType.BREAK):
+			self.advance()
+			break_value = None
+			if not self.check(TokenType.SEMICOLON):
+				break_value = self.parse_expr()
+			self.consume(TokenType.SEMICOLON, "Expected ';' after break statement")
+			break_stmt = BreakStmt(break_value)
+			return break_stmt
+		
 		return self.parse_expr_stmt()
 
 
