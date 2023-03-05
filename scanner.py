@@ -60,6 +60,7 @@ class TokenType(Enum):
 	WHILE = 44
 	EOF = 45
 	ENUM = 46
+	BREAK = 47
 
 
 KEYWORDS = {
@@ -79,7 +80,8 @@ KEYWORDS = {
 	'super': TokenType.SUPER,
 	'this': TokenType.THIS,
 	'while': TokenType.WHILE,
-	'enum': TokenType.ENUM
+	'enum': TokenType.ENUM,
+	'break': TokenType.BREAK
 }
 
 
