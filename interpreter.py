@@ -14,7 +14,7 @@ class Interpreter(ExprVisitor, StmtVisitor):
 	def __init__(self):
 		self.globals = Environment()
 		self.init_globals()
-
+		self.stop = False
 		self.var_env = Environment(enclosing=self.globals)
 
 
@@ -287,8 +287,13 @@ class Interpreter(ExprVisitor, StmtVisitor):
 
 
 	def visit_while_stmt(self, while_stmt):
+		# print(self.stringify(while_stmt))
 		while self.evaluate(while_stmt.condition):
-			self.execute(while_stmt.body)
+			if self.stop == 1:
+				break
+			else:
+				self.execute(while_stmt.body)
+		return None
 
 
 	def visit_return_stmt(self, ret):
